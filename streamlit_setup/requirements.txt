@@ -1,0 +1,12 @@
+# Full Version 1 package declaration. Install packages as their build steps need them.
+# Tested versions and compatibility observations belong in dependency_notes.md.
+streamlit
+google-genai
+pydantic
+pymupdf
+python-docx
+pandas
+openpyxl
+tabulate
+python-dotenv
+pytest
