@@ -1,0 +1,2 @@
+# Convenience entry point; the maintained dependency list lives in streamlit_setup.
+-r streamlit_setup/requirements.txt

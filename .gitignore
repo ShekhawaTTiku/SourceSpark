@@ -1,0 +1,44 @@
+# Local credentials, including Gemini and Groq API keys. Never commit .env.
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# Generated Python and verification files.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.log
+
+# Private working snapshots and local input copies; fictional fixtures remain tracked.
+*.workspace.json
+workspace_snapshots/
+user_uploads/
+
+# Local Python environments, build output and coverage reports.
+.venv/
+venv/
+env/
+build/
+dist/
+*.egg-info/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.mypy_cache/
+.ruff_cache/
+
+# Editor/OS files, temporary downloads, local credentials and original chat notes.
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.tmp
+*.bak
+*.swp
+*.pem
+*.key
+~$*
+/You are a senior software engineer and patient me.md
