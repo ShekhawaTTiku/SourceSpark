@@ -186,3 +186,9 @@ batch when needed. Credentials, private data, caches and the superseded combined
 chat reference remain local. The running app must release the folder before Windows
 can rename it; saved work must be preserved before stopping the server.
 
+After the user saved and authorized restart, Codex itself also held the parent
+directory open. The project contents and intact repository were moved into
+D:\projects\SourceSpark instead. The old directory has no project files, only an
+empty .git directory. This preserves local keys and Git history without closing
+the user's Codex session.
+

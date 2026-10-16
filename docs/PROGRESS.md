@@ -143,6 +143,10 @@ and test instructions. The root dependency entry delegates to the maintained lis
 The user authorized GitHub publication in batches of at most four files. Expanded
 ignore rules cover keys, private uploads/snapshots, caches, environments and editor
 files. Git history and the remote record publication results. The original live
-server currently holds the folder open, so renaming awaits preservation of any
-unsaved workspace and shutdown of that server.
+server initially held the folder open. The user saved their workspace and
+authorized restart. All project files, Git history and the unchanged local .env
+were moved to D:\projects\SourceSpark. Codex processes still hold the old parent
+folder open; it contains only an empty .git directory, with no project files.
+The complete 75-file project was published to ShekhawaTTiku/SourceSpark in eighteen
+four-file batches and a final three-file batch. Remote and local main matched.
 
