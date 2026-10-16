@@ -1,0 +1,8 @@
+Create a bounded batch for the active plan described in request_data.
+The mode/target describes the intended plan, not a promise to fill its slots.
+Only request_data.capacity candidates can be accepted in this batch. An open-ended
+campaign may use later batches; ten is a per-request limit, not the total campaign size.
+Respect audience, goal and guidance when evidence permits. If they require unsupported
+facts or an unrelated subject, return fewer or zero candidates and explain the gap.
+Consider all retained and excluded topic records before choosing distinct angles.
+Use all eligible source locations; do not assume a tabular preview is the complete table.
