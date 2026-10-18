@@ -18,7 +18,7 @@ from web_app.views import (
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 st.set_page_config(page_title=APP_TITLE, page_icon=':material/recycling:',
-                   layout='centered', initial_sidebar_state='collapsed')
+                   layout='wide', initial_sidebar_state='collapsed')
 workspace = initialize()
 render_header(workspace)
 render_workspace(workspace)

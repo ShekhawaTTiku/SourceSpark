@@ -10,3 +10,5 @@ openpyxl
 tabulate
 python-dotenv
 pytest
+streamlit-shadcn-ui
+streamlit-antd-components
