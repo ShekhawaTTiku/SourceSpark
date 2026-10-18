@@ -22,16 +22,16 @@ class EvidenceReference(BaseModel):
 
 
 class TopicCandidate(BaseModel):
-    """A complete candidate; local source-aware checks still decide acceptance."""
+    """A readable candidate; local source-aware checks provide review guidance."""
 
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
-    title: str = Field(min_length=5, max_length=120)
-    core_insight: str = Field(min_length=20, max_length=500)
-    context: str = Field(min_length=20, max_length=1200)
+    title: str = Field(min_length=1, max_length=120)
+    core_insight: str = Field(min_length=1, max_length=500)
+    context: str = Field(min_length=1, max_length=1200)
     target_audience: str = Field(min_length=1, max_length=300)
     suggested_format: str = Field(min_length=1, max_length=300)
-    sources: list[EvidenceReference] = Field(min_length=1, max_length=10)
+    sources: list[EvidenceReference] = Field(max_length=10)
 
     @field_validator("sources")
     @classmethod

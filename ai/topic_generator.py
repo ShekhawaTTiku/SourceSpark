@@ -67,10 +67,5 @@ def generate_topics(
     )
     # Only safe route labels enter feedback; credentials and clients stay outside workspace data.
     batch.feedback = [*getattr(selected_provider, "feedback", []), *batch.feedback]
-    if result.candidates and not batch.candidates:
-        raise GenerationError(
-            "validation", "No returned candidate passed validation. " + " ".join(batch.feedback[:10]),
-            retryable=True,
-        )
     _brief_relevance_feedback(workspace, batch)
     return batch

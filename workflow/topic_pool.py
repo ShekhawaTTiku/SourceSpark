@@ -40,9 +40,7 @@ def accept_topics(
     accepted: list[TopicIdea] = []
     feedback: list[str] = []
     for candidate in candidates:
-        if any(is_repeated(candidate, old) for old in [*topics, *accepted]):
-            feedback.append(f'Skipped repeated angle: {candidate.title}')
-        elif len(accepted) >= capacity:
+        if len(accepted) >= capacity:
             feedback.append('Rejected candidate beyond the requested batch capacity.')
         else:
             accepted.append(TopicIdea(**candidate.model_dump()))

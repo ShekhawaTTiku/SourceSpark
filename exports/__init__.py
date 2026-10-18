@@ -33,7 +33,8 @@ def plan_rows(workspace: Workspace) -> Iterator[tuple[int, str, str, TopicIdea |
         for day in range(plan.weekly_days):
             topic_id = plan.day_assignments.get(day)
             assigned_date = (plan.start_date + timedelta(days=day)).isoformat() if plan.start_date else ""
-            yield day + 1, DAY_NAMES[day], assigned_date, topics.get(topic_id)
+            weekday = DAY_NAMES[(plan.start_date.weekday() + day) % 7] if plan.start_date else DAY_NAMES[day]
+            yield day + 1, weekday, assigned_date, topics.get(topic_id)
     else:
         for index, topic_id in enumerate(plan.selected_topic_ids, start=1):
             yield index, "", "", topics[topic_id]

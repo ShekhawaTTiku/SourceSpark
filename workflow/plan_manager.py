@@ -45,7 +45,7 @@ def configure_plan(
         workspace, name=name, mode=mode, weekly_days=weekly_days,
         target=target if mode == 'Campaign' else None,
         audience=audience, goal=goal, guidance=guidance,
-        day_assignments=assignments, start_date=start_date if mode == 'Week' else None,
+        day_assignments=assignments, start_date=start_date,
     )
     if plan != workspace.plan:
         commit(workspace, plan=plan)

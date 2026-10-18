@@ -1,5 +1,26 @@
 # Implementation Progress and Verification
 
+## Guided setup revision — 17 October 2026
+
+- Replaced the all-at-once landing page with four steps: Weekly/Campaign,
+  five/seven days or campaign topic count, start date, and optional additional
+  information revealed by a Yes checkbox. Back retains draft choices; only the
+  final Continue applies them. Edit supports cancellation without changing the plan.
+- Added Sources, Topics and Finish screens after setup. Workspace management stays
+  in the collapsed sidebar; provider/batch details stay under Generation options.
+- Both modes retain start dates. Weekly labels and export dates follow any chosen
+  start day; campaign starts appear in Markdown/CSV metadata and JSON snapshots.
+  Calendar overflow and selection-conflict checks remain enforced.
+- Existing undated/open-target snapshots remain compatible. New plan/workspace
+  actions restart setup and retain their original keep/clear behavior.
+- Verification: 245 automated tests passed in 6.24 seconds using the existing
+  Python. Checks cover both wizard branches, invalid/missing inputs, optional
+  questions, Back/Cancel, staged screens, date roundtrips, export weekday accuracy,
+  reset/reopen, parsing, generation and existing workflow rules. Git diff whitespace
+  check passed. Welcome and weekly-length screens were visually inspected in a
+  separate browser session against the running localhost app; no live generation
+  was requested for this revision.
+
 ## Status — 17 October 2026
 
 The expanded Streamlit V1 implementation is present across Steps 2R–13, following
@@ -18,7 +39,8 @@ remain available for honest learning and automated verification.
 - Full loaded-table summaries with bounded individually citeable row previews.
 - Complete evidence inspector and resource guards without silent context truncation.
 - Reusable sources/topic library, stable IDs, one named active plan, brief and exclusions.
-- Five/seven weekly slots, optional Monday dates, flexible/open campaigns above ten.
+- Five/seven consecutive weekly slots from any chosen start date, campaign start
+  metadata, and campaigns above ten (older open-target snapshots still load).
 - Explicit bounded generation and additional rounds from unchanged sources, busy guards,
   evidence/claim/repetition checks, brief review flags and retained work on failure.
 - Selection/deselection, exclusion/restore, order, day swaps and conflict-safe mode changes.
@@ -149,4 +171,25 @@ were moved to D:\projects\SourceSpark. Codex processes still hold the old parent
 folder open; it contains only an empty .git directory, with no project files.
 The complete 75-file project was published to ShekhawaTTiku/SourceSpark in eighteen
 four-file batches and a final three-file batch. Remote and local main matched.
+
+## Advisory topic review — 17 October 2026
+
+Implemented the user's requested lenient review workflow. Readable structured
+topics remain in the library with green source-check labels or red review reasons,
+including quotation mismatches, missing citations, suspected overreach and repeated
+angles. Matching tolerates whitespace, typographic quotes, ligatures, soft hyphens
+and hyphenated word wrapping, recovering original passages when possible. Prompts
+distinguish research findings from suggested discussion angles within one response.
+
+New topics are not selected automatically. User selection hides the review label;
+exports omit unverified-source labels. Uncertain references survive save/reopen,
+selection and finalization. Structural and resource guards remain. No additional
+AI extraction, validation or repair call was added; operational fallback is unchanged.
+
+Verification: `python -m pytest -q` passed **259 tests**. Coverage includes the
+actual Streamlit interaction flow, a single mocked provider call through review
+and selection, formatting differences versus altered facts, missing citations,
+repeated angles, existing selections, and snapshot/finalized-export behavior.
+`git diff --check` passed. This revision has not been tested against a live
+provider or the user's failing private document and has not been deployed.
 

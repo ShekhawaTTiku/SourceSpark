@@ -8,15 +8,18 @@ and build a plan you can review, export and reopen.
 
 ## Features
 
-- **Week and Campaign modes:** five/seven-topic weeks, or flexible campaigns with
-  an optional target. Campaigns grow across batches of up to ten generated ideas.
+- **Guided setup:** choose Weekly or Campaign, plan size, start date, then optionally
+  add an audience, goal and guidance. Weekly plans span five or seven consecutive
+  days; campaigns ask for a topic target and grow across batches of up to ten ideas.
 - **PDF, DOCX, XLSX and CSV:** inspect extracted text, source locations and warnings.
 - **Grounded ideas:** titles, insights, context, suggested audience/format and
-  evidence excerpts, checked against the uploaded sources.
+  evidence excerpts, checked locally against the uploaded sources. Green means
+  source checks passed; red means needs review. Readable topics stay available
+  even when evidence checks raise concerns.
 - **Provider fallback:** Gemini primary, Groq on operational failure, then a
   Gemini reserve. All routes use the same local validation.
 - **Reusable library:** select, deselect, exclude, restore and reorder topics.
-- **Weekly scheduling:** day assignments and optional dates from a Monday start.
+- **Scheduling:** start dates for both modes, with weekly day labels following the chosen date.
 - **Review and export:** explicitly finalize, then download Markdown or CSV.
 - **Save and reopen:** portable workspace files preserve sources, ideas and plans.
 
@@ -74,15 +77,24 @@ python -m streamlit run web_app/app.py
 
 ## Try the workflow
 
-1. Name the workspace, choose Week or Campaign, and apply plan settings.
-2. Upload the clearly fictional files in [sample_docs](sample_docs/), then press
+1. Choose **Weekly** or **Campaign**. Pick a 5-day/7-day week or enter a campaign
+   topic count, then choose a start date. Tick **Yes, add additional information**
+   to reveal the optional plan name, audience, goal and guidance questions.
+2. On **Sources**, upload the clearly fictional files in [sample_docs](sample_docs/), then press
    **Add documents**. Inspect extracted text and warnings.
-3. Press **Generate** to send the extracted sources, brief and remembered angles
+3. Continue to **Topics**, then press **Generate topics** to send the extracted sources, brief and remembered angles
    to the configured providers.
 4. Review ideas and evidence. Select useful topics and exclude unwanted angles.
-5. Arrange topics, assign weekly days if relevant, and explicitly finalize.
+   New topics enter the library without being selected automatically. Selecting
+   a topic hides its review label; reports do not add an unverified-source label.
+   Checks and review actions use no additional AI calls or automatic repair pass.
+5. Go to **Finish**, arrange topics, assign weekly days if relevant, and explicitly finalize.
    A nonempty shorter plan requires acknowledgement.
-6. Download Markdown or CSV, and save a workspace file to resume later.
+6. Download Markdown or CSV, and open the sidebar to save a workspace file to resume later.
+
+Use **Edit plan settings** to revisit setup. Back keeps your draft choices, and
+Cancel changes preserves the active plan. Existing saved workspaces can still
+reopen, including older plans without dates or open-ended campaign targets.
 
 New plan retains the sources and library. New empty workspace clears them after
 confirmation. Each workspace has one active plan. Reopen a finalized plan for
@@ -101,7 +113,9 @@ python -m pytest -q
 On your original PC, substitute the full Python path above if `python` resolves
 a different installation.
 
-The last complete verification passed **240 tests**. Separate live checks passed
+The last complete local verification passed **259 tests**, including advisory
+review, manual selection, formatting-tolerant evidence and snapshot/export checks.
+This revision was tested with simulated providers. Earlier separate live checks passed
 for Gemini primary and Groq fallback, including evidence validation, finalization,
 exports and snapshot reopening. The Gemini reserve returned a service-unavailable
 response. A complete manual browser upload/download/reopen run and CSV appearance

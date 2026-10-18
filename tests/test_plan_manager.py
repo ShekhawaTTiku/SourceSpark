@@ -89,9 +89,11 @@ def test_week_assignments_swap_and_keep_gaps(workspace: Workspace) -> None:
     assert workspace.plan.selected_topic_ids == [second, third, first]
     assert workspace.request_round == 0
     configure_plan(workspace, name='Dated', mode='Week', start_date=date(2026, 12, 28))
+    configure_plan(workspace, name='Tuesday start', mode='Week', start_date=date(2026, 12, 29))
+    assert workspace.plan.start_date == date(2026, 12, 29)
     before = workspace.model_dump()
-    with pytest.raises(ValueError, match='Monday'):
-        configure_plan(workspace, name='Invalid', mode='Week', start_date=date(2026, 12, 29))
+    with pytest.raises(ValueError, match='calendar'):
+        configure_plan(workspace, name='Invalid', mode='Week', start_date=date(9999, 12, 31))
     assert workspace.model_dump() == before
 
 

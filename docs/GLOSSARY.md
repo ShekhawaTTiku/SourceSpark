@@ -60,6 +60,6 @@ Terms describe the application's current boundaries. [PROJECT_GUIDE.md](PROJECT_
 | Topic library | All retained accepted topics, including currently unselected and excluded records. |
 | Transactional loading | Validate a separate complete workspace first and replace current work only after success. |
 | Validation | Checking required structure, values, references, and rules. Its practical factual checks do not prove every interpretation. |
-| Week mode | A Monday-based plan with five or seven slots, one topic per day and optional dates. |
+| Week mode | A plan with five or seven consecutive daily slots, starting on the chosen date. Older undated plans still load. |
 | Workspace | Reusable source and topic libraries, exclusions, working metadata, and one active plan. |
 

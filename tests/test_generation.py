@@ -6,7 +6,7 @@ from types import SimpleNamespace
 import pytest
 
 from ai.gemini_client import GeminiClient, GenerationError
-from ai.response_validator import validate_candidates
+from ai.response_validator import review_candidate, validate_candidates
 from ai.topic_generator import generate_topics
 from documents.extraction import canonical_content
 from models.generation_result import GenerationResult
@@ -56,13 +56,14 @@ def test_supported_candidate_is_independent_and_preserves_complete_context():
     assert any("cannot prove" in message for message in batch.feedback)
 
 
-def test_short_or_generic_context_is_rejected_even_with_supported_insight():
+def test_short_or_generic_context_is_kept_with_review_note():
     for context in (
+        "A brief note.",
         "An important school awareness topic.",
         "A compelling communication strategy provides actionable background for persuasive messaging.",
     ):
         batch = validate_candidates(result(candidate(context=context)), [source()], [], [], 5)
-        assert not batch.candidates
+        assert len(batch.candidates) == 1
         assert any("supporting context" in message for message in batch.feedback)
 
 
@@ -70,12 +71,13 @@ def test_short_or_generic_context_is_rejected_even_with_supported_insight():
     ("document_id", "f" * 64), ("filename", "invented.docx"),
     ("location", "Page 999"), ("excerpt", "An invented supporting statement."),
 ])
-def test_fabricated_evidence_is_rejected(field, value):
+def test_untraceable_evidence_is_kept_with_review_note(field, value):
     proposed = candidate()
     proposed.sources[0] = proposed.sources[0].model_copy(update={field: value})
     batch = validate_candidates(result(proposed), [source()], [], [], 5)
-    assert not batch.candidates
-    assert any("rejected" in message for message in batch.feedback)
+    assert len(batch.candidates) == 1
+    assert any("kept for review" in message for message in batch.feedback)
+    assert review_candidate(batch.candidates[0], [source()])
 
 
 @pytest.mark.parametrize("updates,reason", [
@@ -86,29 +88,31 @@ def test_fabricated_evidence_is_rejected(field, value):
     ({"core_insight": "Eight kilograms of labels are missing from the school."}, "unit"),
     ({"core_insight": "Ocean currents circulate plastic around distant marine habitats."}, "overlap"),
 ])
-def test_unsupported_claims_are_rejected(updates, reason):
+def test_unsupported_claims_are_kept_with_review_note(updates, reason):
     batch = validate_candidates(result(candidate(**updates)), [source()], [], [], 5)
-    assert not batch.candidates
+    assert len(batch.candidates) == 1
     assert any(reason in message for message in batch.feedback)
 
 
-def test_repeats_within_batch_and_excluded_angles_are_rejected():
+def test_repeats_within_batch_and_excluded_angles_are_kept_with_review_note():
     existing = TopicIdea(**candidate().model_dump())
     batch = validate_candidates(result(candidate()), [source()], [existing], [existing.topic_id], 5)
-    assert not batch.candidates
+    assert len(batch.candidates) == 1
     assert any("excluded" in message for message in batch.feedback)
     batch = validate_candidates(result(candidate(), candidate()), [source()], [], [], 5)
-    assert len(batch.candidates) == 1
+    assert len(batch.candidates) == 2
     assert any("same-batch" in message for message in batch.feedback)
 
 
-def test_near_duplicate_wording_is_rejected():
+def test_near_duplicate_wording_is_kept_for_review():
     existing = TopicIdea(**candidate().model_dump())
     proposed = candidate(
         title="Classroom bin labels need attention!",
         core_insight="Eight classrooms at Greenfield School lack their bin labels.",
     )
-    assert not validate_candidates(result(proposed), [source()], [existing], [], 5).candidates
+    batch = validate_candidates(result(proposed), [source()], [existing], [], 5)
+    assert len(batch.candidates) == 1
+    assert any("repeats" in message for message in batch.feedback)
 
 
 def test_distinct_angles_can_share_the_same_source():
@@ -126,14 +130,14 @@ def test_distinct_angles_can_share_the_same_source():
     assert len(batch.candidates) == 2
 
 
-def test_capacity_is_enforced_without_global_library_limit():
+def test_extra_returned_candidates_are_kept_in_review_library():
     other = candidate(title="The school's reported classroom count",
         core_insight="Greenfield School has 20 classrooms in its school report.",
         context="The school report records 20 classrooms at Greenfield School. "
                 "The topic explains the documented scope of the classroom report.")
     batch = validate_candidates(result(candidate(), other), [source()], [], [], 1)
-    assert len(batch.candidates) == 1
-    assert any("capacity" in message for message in batch.feedback)
+    assert len(batch.candidates) == 2
+    assert any("extra topics" in message for message in batch.feedback)
 
 
 def test_short_and_zero_results_are_valid_successes():
@@ -193,13 +197,14 @@ def test_invalid_provider_schema_is_a_distinct_failure():
     assert caught.value.category == "invalid_output"
 
 
-def test_all_invalid_candidates_are_a_retryable_failure_but_zero_is_success():
+def test_all_flagged_candidates_are_success_without_repair_call_and_zero_is_success():
     workspace = Workspace(documents=[source()])
     invalid = candidate(core_insight="Ninety classrooms at Greenfield School lack bin labels.")
-    with pytest.raises(GenerationError) as caught:
-        generate_topics(workspace, 5, FakeProvider(result(invalid)))
-    assert caught.value.category == "validation"
-    assert caught.value.retryable
+    provider = FakeProvider(result(invalid))
+    batch = generate_topics(workspace, 5, provider)
+    assert len(batch.candidates) == 1
+    assert any("numeric" in message for message in batch.feedback)
+    assert len(provider.calls) == 1
     assert not generate_topics(workspace, 5, FakeProvider(result())).candidates
 
 
@@ -223,7 +228,9 @@ def test_percentage_decimals_match_but_plain_counts_do_not_become_percentages():
     document.locations = {"Paragraph 1": "The school report records 12 bins without labels."}
     document.content = canonical_content(document.locations)
     proposed.sources[0].excerpt = document.locations["Paragraph 1"]
-    assert not validate_candidates(result(proposed), [document], [], [], 5).candidates
+    batch = validate_candidates(result(proposed), [document], [], [], 5)
+    assert len(batch.candidates) == 1
+    assert any("numeric" in message for message in batch.feedback)
 
 
 class APIProblem(Exception):

@@ -20,12 +20,12 @@ These fictional examples teach behavior. They are not measured waste statistics 
 
 | Choice | Intended behavior |
 | --- | --- |
-| Five-day Week | Monday–Friday slots, with at most one selected topic per day. |
-| Seven-day Week | Monday–Sunday slots, with at most one selected topic per day. |
+| Five-day Week | Five consecutive days from the chosen start, one topic per day. |
+| Seven-day Week | Seven consecutive days from the chosen start, one topic per day. |
 | Targeted Campaign | A positive user-selected topic target. |
 | Open Campaign | An ordered selection without a required target. |
 
-An optional week-start date must be a Monday, and the entire five/seven-day range must fit the supported calendar. No date is assigned when none is chosen. Empty weekly slots remain visible, including in a deliberately shorter finalized report.
+New plans use a four-step setup: Weekly/Campaign, size, start date, then optional additional information. Audience, goal and guidance only appear after checking Yes. Sources, Topics and Finish are separate workspace screens. Campaigns retain their start date as plan metadata; weekly day names and dates follow the chosen start, and the entire five/seven-day range must fit the supported calendar. Older snapshots without dates or with open campaign targets still reopen. Empty weekly slots remain visible, including in a deliberately shorter finalized report.
 
 Reaching a target means ready for review. Only the user's finalize action makes it finalized. A nonempty shorter plan can be finalized after acknowledging unfilled slots. An empty plan cannot become a substantive exported report. Reopen the finalized plan before changing its content.
 
@@ -34,6 +34,8 @@ Reaching a target means ready for review. Only the user's finalize action makes 
 Users name the workspace and active plan, choose mode and optional target, and edit the audience, goal, and additional guidance. These brief fields influence relevance; they cannot supply missing factual evidence.
 
 Selecting adds a library topic to the active plan. Deselecting keeps the topic for later use. Excluding also remembers its angle as something future generation should avoid. Restoring makes the topic available again without automatically selecting it. Moving a topic or assigning a weekday changes its position without asking Gemini for anything.
+
+Newly generated topics enter the Available library and require manual selection. Green means local source checks passed; red means needs review, with a reason. Both remain selectable. Selecting hides that topic's review label, and exports do not add an unverified-source label. Deselecting shows its review status again. Quote matching tolerates harmless formatting differences; these checks and review actions use no extra AI validation or repair call.
 
 Starting a new plan retains documents, the topic library, and exclusions. Starting a new empty workspace is a separate destructive replacement that the interface confirms. There is one active plan; older plans are retained only in snapshots the user deliberately saves.
 

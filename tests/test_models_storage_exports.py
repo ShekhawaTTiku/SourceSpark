@@ -82,15 +82,11 @@ def test_topic_context_is_required_and_batch_limit_is_not_library_limit() -> Non
     lambda value: value["workspace"]["documents"][0].update(size_bytes=True),
     lambda value: value["workspace"]["documents"][0].update(filename="C:\\private\\school.csv"),
     lambda value: value["workspace"]["documents"][0].update(content="Different from locations"),
-    lambda value: value["workspace"]["topics"][-1]["sources"][0].update(document_id="a" * 64),
-    lambda value: value["workspace"]["topics"][-1]["sources"][0].update(filename="wrong.csv"),
-    lambda value: value["workspace"]["topics"][-1]["sources"][0].update(location="Invented page"),
-    lambda value: value["workspace"]["topics"][-1]["sources"][0].update(excerpt="Invented supporting text"),
     lambda value: value["workspace"]["plan"]["selected_topic_ids"].append("b" * 32),
     lambda value: value["workspace"]["excluded_topic_ids"].append(value["workspace"]["plan"]["selected_topic_ids"][0]),
     lambda value: value["workspace"]["plan"].update(finalized_at=None),
 ])
-def test_invalid_load_is_transactional_including_late_evidence_failure(mutator) -> None:
+def test_invalid_structural_load_is_transactional(mutator) -> None:
     active = example_workspace()
     before = active.model_dump(mode="json")
     payload = json.loads(save_workspace(active))
@@ -153,7 +149,7 @@ def test_snapshot_collection_guard_is_separate_from_campaign_size(monkeypatch) -
 
 def test_import_errors_do_not_echo_private_field_values() -> None:
     payload = json.loads(save_workspace(example_workspace()))
-    payload["workspace"]["topics"][-1]["sources"][0]["excerpt"] = "SECRET PRIVATE PATIENT TEXT"
+    payload["workspace"]["topics"][-1]["sources"][0]["document_id"] = "SECRET PRIVATE PATIENT TEXT"
     with pytest.raises(ValueError) as error:
         load_workspace(json.dumps(payload).encode())
     assert "SECRET PRIVATE" not in str(error.value)
@@ -183,10 +179,9 @@ def test_week_slots_dates_and_explicit_shortfall_acknowledgement() -> None:
 
 
 @pytest.mark.parametrize("changes", [
-    {"start_date": date(2026, 10, 20)},
     {"target": 5},
     {"day_assignments": {7: "1" * 32}},
-    {"mode": "Campaign", "start_date": date(2026, 10, 19)},
+    {"mode": "Campaign", "day_assignments": {0: "1" * 32}},
     {"weekly_days": 6},
     {"mode": "Campaign", "target": True},
     {"start_date": 0},
@@ -212,6 +207,30 @@ def test_week_calendar_overflow_load_is_transactional() -> None:
         candidate = load_workspace(json.dumps(payload).encode())
         active = candidate
     assert active.model_dump(mode="json") == before
+
+
+def test_campaign_start_date_roundtrips_and_appears_in_both_exports() -> None:
+    workspace = example_workspace()
+    workspace.plan.start_date = date(2026, 10, 17)
+    restored = load_workspace(save_workspace(workspace))
+    assert restored.plan.start_date == date(2026, 10, 17)
+    assert '**Start date:** 2026-10-17' in export_markdown(restored)
+    rows = list(csv.DictReader(StringIO(export_csv(restored).decode('utf-8-sig'))))
+    assert all(row['start_date'] == '2026-10-17' and row['date'] == '' for row in rows)
+
+
+def test_weekly_export_weekdays_follow_the_chosen_start_date() -> None:
+    workspace = example_workspace()
+    selected = workspace.plan.selected_topic_ids
+    workspace.plan = Plan(
+        mode='Week', selected_topic_ids=selected,
+        day_assignments=dict(enumerate(selected)), start_date=date(2026, 10, 17),
+        status='FINALIZED', shortfall_acknowledged=True, finalized_at=datetime.now(timezone.utc),
+    )
+    markdown = export_markdown(workspace)
+    assert 'Saturday — 2026-10-17' in markdown
+    rows = list(csv.DictReader(StringIO(export_csv(workspace).decode('utf-8-sig'))))
+    assert [row['weekday'] for row in rows] == ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday']
 
 
 def test_campaign_exports_only_finalized_selected_order_and_supporting_context() -> None:

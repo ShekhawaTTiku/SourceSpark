@@ -13,17 +13,14 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from config.settings import APP_TITLE
 from web_app.views import (
-    initialize, render_active_plan, render_generation, render_header,
-    render_library, render_plan_setup, render_sources, render_workspace,
+    initialize, render_header, render_plan_setup, render_workbench, render_workspace,
 )
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
-st.set_page_config(page_title=APP_TITLE, page_icon=':material/recycling:', layout='wide')
+st.set_page_config(page_title=APP_TITLE, page_icon=':material/recycling:',
+                   layout='centered', initial_sidebar_state='collapsed')
 workspace = initialize()
 render_header(workspace)
 render_workspace(workspace)
-render_plan_setup(workspace)
-render_sources(workspace)
-render_generation(workspace)
-render_library(workspace)
-render_active_plan(workspace)
+if render_plan_setup(workspace):
+    render_workbench(workspace)

@@ -27,20 +27,20 @@ All models forbid extra fields. Pydantic validates construction and boundary reb
 | Model | Important contract |
 | --- | --- |
 | EvidenceReference | document_id is 64 lowercase hexadecimal characters; exact filename, location, and excerpt identify support. |
-| TopicCandidate | Title 5–120 characters; core_insight 20–500; descriptive context 20–1200; nonempty audience/format; one to ten distinct evidence references. |
+| TopicCandidate | Nonempty title up to 120 characters; core_insight up to 500; context up to 1200; nonempty audience/format; zero to ten distinct evidence references (missing evidence is a review concern). |
 | TopicIdea | Adds stable application-generated 32-hex topic_id and generated/sample origin. |
 | GenerationResult | Zero to ten candidates and sufficiency_note of 1–1000 characters. |
 | DocumentRecord | Safe basename, lower-case supported extension without dot, original byte size, content, locations, warnings, participation; no raw binary. content exactly matches the canonical location-block construction. |
-| Plan | Stable ID/name, Week/Campaign, five/seven days, optional campaign target, brief, ordered selections, day assignments, optional Monday date, state, acknowledgement, finalization time. |
+| Plan | Stable ID/name, Week/Campaign, five/seven days, optional campaign target, brief, ordered selections, day assignments, optional start date in either mode, state, acknowledgement, finalization time. |
 | Workspace | Stable ID/name, sources, topic library, exclusion IDs, active plan, busy, pool_revision, request_round, last_successful_request, note/feedback, timestamps. No provider/client/secret fields. |
 
 DocumentRecord exposes character_count and content_characters for inspection. Source fingerprints derive from original bytes at ingestion; imported fingerprints do not authenticate absent raw originals.
 
-Plan effective_target is weekly_days for Week, otherwise optional target. remaining_slots is None for open campaigns or a nonnegative vacancy count. Week selected IDs must exactly match assignment values sorted by day index, with Monday at index zero. Gaps are valid. An optional Monday start must leave the entire week inside Python's representable calendar, including at the upper date boundary. Campaigns have no day assignments/date. Duplicate selections and selections beyond a fixed target are invalid.
+Plan effective_target is weekly_days for Week, otherwise optional target. remaining_slots is None for open campaigns or a nonnegative vacancy count. Week selected IDs must exactly match assignment values sorted by day index, with the chosen start at index zero (Monday labels for legacy undated weeks). Gaps are valid. A start date must leave the entire week inside Python's representable calendar, including at the upper date boundary. Campaigns have no day assignments but retain their start date. Duplicate selections and selections beyond a fixed target are invalid.
 
 Readiness derives from selection: filled fixed targets or a nonempty open campaign are READY_FOR_REVIEW. Other editable plans are DRAFT. FINALIZED requires a nonempty selection, timestamp, and acknowledgement when shorter than target. Nonfinalized plans cannot retain finalization metadata. Reaching a target never finalizes.
 
-Workspace validates unique source/topic identities, case-insensitive source-name uniqueness, source counts/sizes, selection/exclusion membership and disjointness, evidence relationships, and canonical extraction. Imported evidence excerpts must match location text with whitespace-equivalent matching; live generation uses actual excerpt occurrence. Structural evidence checks do not establish complete factual entailment.
+Workspace validates unique source/topic identities, case-insensitive source-name uniqueness, source counts/sizes, selection/exclusion membership and disjointness, and canonical extraction. Evidence relationships are advisory, so uncertain references survive selection, export and snapshots. review_candidate recomputes concerns locally for unselected cards; selected topics and exports omit review labels. No new snapshot fields or migration are required.
 
 ## Ingestion and context
 
@@ -58,17 +58,17 @@ ai/topic_generator accepts an optional provider implementing generate with promp
 
 GeminiClient requires GEMINI_API_KEY and an account-accessible GEMINI_MODEL from local configuration. It obtains model metadata and counts full prompt/schema tokens with a response allowance before requesting structured JSON output. SDK transport retries are disabled. One automatic retry budget is shared across provider operations for eligible temporary failures; timeouts, permanent quota/access failures, long requested delays, and malformed output remain manual recovery paths. GenerationError exposes safe category/message and retryability rather than raw provider text.
 
-response_validator checks evidence membership/excerpt, conservative numeric/unit/scope/causal guards and factual word overlap. topic_pool normalizes wording and uses practical similarity comparisons, retaining exclusions as prior angles. These checks cannot promise semantic deduplication or correct reasoning. Do not weaken evidence to fill a target.
+response_validator checks evidence membership/excerpt, numeric/unit/scope/causal guards and factual word overlap as advisory reasons. documents/evidence.py tolerates quote formatting and recovers original passages. Repeated angles are flagged, not discarded. All structured candidates enter the library, up to the ten-record response bound, even above requested capacity. Generation preserves plan selections; only user selection places a new topic in the plan. Checks require no additional extraction, validation or repair AI call. Prompts preserve research scope and separate findings from editorial suggestions.
 
 ## Snapshot schema and reports
 
 storage.save_workspace returns UTF-8 JSON bytes with schema_version 1, saved_at, and a complete workspace record. load_workspace accepts bytes and returns a separate validated Workspace. It never installs state. The UI handles replacement confirmation and replaces memory only after successful validation.
 
-The loader rejects unsupported versions, malformed UTF-8/JSON, duplicate object keys, nonstandard constants, unknown/missing fields, unsafe filenames, inconsistent evidence, invalid selections/exclusions/slots, and invalid finalization. It resets busy after loading. It never evaluates text, imports classes, opens named paths, or uses object deserialization. There is no speculative migration layer.
+The loader rejects unsupported versions, malformed UTF-8/JSON, duplicate object keys, nonstandard constants, unknown/missing fields, unsafe source filenames, inconsistent extraction, invalid selections/exclusions/slots, and invalid finalization. Uncertain topic evidence reopens for local review. It resets busy after loading. It never evaluates text, imports classes, opens named paths, or uses object deserialization. There is no speculative migration layer.
 
 Snapshots are limited to twenty MiB and ten thousand topic records, with source/text/collection guards. The topic-record guard is a persistence resource boundary, not a ten-topic campaign ceiling. Saved extracted content is private and unencrypted. No raw originals, secrets, environment objects, prompts, raw provider responses, or client objects are saved.
 
-Exports revalidate a full workspace and require a nonempty finalized plan. Shared row construction preserves selected order and every weekly slot; optional dates derive from a Monday only. Markdown is standalone. CSV uses csv.DictWriter, UTF-8 with a byte-order mark, and formula-like-cell neutralization. Reports include selected context/evidence/warnings rather than the whole library/source contents. Drafts after reopening cannot create current finalized exports.
+Exports revalidate a full workspace and require a nonempty finalized plan. Shared row construction preserves selected order and every weekly slot; weekday names and dates derive from the chosen start date. Campaign starts appear as metadata in Markdown and the CSV start_date column. Markdown is standalone. CSV uses csv.DictWriter, UTF-8 with a byte-order mark, and formula-like-cell neutralization. Reports include selected context/evidence/warnings rather than the whole library/source contents. Drafts after reopening cannot create current finalized exports.
 
 ## Tests and current verification limits
 

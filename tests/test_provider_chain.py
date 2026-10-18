@@ -103,16 +103,17 @@ def test_refusal_or_evidence_rejection_does_not_trigger_provider_hopping(workspa
     second.generate.assert_not_called()
 
 
-def test_real_local_evidence_failure_never_tries_a_second_model(workspace: Workspace) -> None:
+def test_flagged_evidence_is_kept_without_trying_a_second_model(workspace: Workspace) -> None:
     invalid = answer(workspace)
     invalid.candidates[0].core_insight = 'Ward 1 reports 9999 kg of sorted waste.'
-    primary, _ = attempt('Gemini primary', 'Gemini', result=invalid)
+    primary, first = attempt('Gemini primary', 'Gemini', result=invalid)
     fallback, second = attempt('Groq fallback', 'Groq', result=answer(workspace))
-    with pytest.raises(GenerationError) as caught:
-        generate_batch(workspace, provider=ProviderChain([primary, fallback]))
-    assert caught.value.category == 'validation'
+    feedback = generate_batch(workspace, provider=ProviderChain([primary, fallback]))
+    first.generate.assert_called_once()
     second.generate.assert_not_called()
-    assert workspace.topics == []
+    assert len(workspace.topics) == 1
+    assert not workspace.plan.selected_topic_ids
+    assert any('numeric' in message for message in feedback)
 
 
 def test_lazy_factory_failure_and_invalid_schema_can_fallback(workspace: Workspace) -> None:

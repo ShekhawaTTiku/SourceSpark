@@ -15,6 +15,9 @@ __pycache__/
 workspace_snapshots/
 user_uploads/
 
+# Local trial documents and their generation/rendering files.
+/local_test_documents/
+
 # Local Python environments, build output and coverage reports.
 .venv/
 venv/
@@ -42,3 +45,6 @@ Desktop.ini
 *.key
 ~$*
 /You are a senior software engineer and patient me.md
+n*.lnk
+
+*.lnk

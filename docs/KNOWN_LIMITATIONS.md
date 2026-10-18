@@ -8,7 +8,7 @@ This document separates intentional V1 boundaries from environmental verificatio
 - Session state survives ordinary reruns but is not permanent storage. Saving/reopening is explicit; there is no background autosave, recovery archive, or automatic plan-history browser.
 - Starting a new plan retains reusable sources/topics/exclusions but replaces the active plan. Preserve a former plan in a downloaded snapshot before replacing it if it will be needed again.
 - Topic plans are planning material. Full post writing, images, automatic publishing, scheduled posting, and social-account integration are outside V1.
-- Week mode uses five Monday–Friday or seven Monday–Sunday slots, with an optional Monday start date. It is not a calendar integration or a configurable recurring schedule.
+- Week mode uses five or seven consecutive daily slots from the selected start date. Campaign start dates are metadata; individual campaign topics are not automatically scheduled. There is no calendar integration or configurable recurring schedule.
 - A topic target is a desired selection size, not a promise that the evidence supports that many distinct ideas. Open campaigns can still exhaust useful source material.
 
 ## Extraction limits
@@ -23,11 +23,11 @@ This document separates intentional V1 boundaries from environmental verificatio
 
 ## Evidence and generation limits
 
-Schema validation checks structure, source validation checks traceability, and conservative factual checks catch some obvious overreach. None proves that every interpretation is correct or relevant. A real quotation can still be misused. Users must review scope, units, dates, legal statements, causal reasoning, and audience fit before publication.
+Schema validation checks structure. Source and factual checks are advisory: green means local source checks passed, while red means needs review. All readable returned topics remain available, including untraceable references and suspected overreach. Selecting hides the review label, and exports omit it; selection does not establish factual accuracy. Users must review claims before publication. No extra AI validation or repair call is made.
 
-Repeated-angle detection uses normalized text and wording similarity, plus remembered titles/insights/context in the provider request. It does not provide perfect semantic comparison. It can miss paraphrases or reject closely worded ideas that a human would distinguish. Exclusions improve history awareness without guaranteeing suppression of every rephrased angle.
+Repeated-angle detection uses normalized text and wording similarity, plus remembered titles/insights/context in the provider request. It can miss paraphrases or flag closely worded ideas that a human would distinguish. Repeated candidates are retained for review. Exclusions improve history awareness without guaranteeing suppression of every rephrased angle.
 
-The brief guides the provider but has no authoritative factual status. Local acceptance cannot perfectly assess compliance with an audience or communication goal. It is deliberately conservative rather than a substitute for editorial review.
+The brief guides the provider but has no authoritative factual status. Local checks cannot perfectly assess audience fit, communication goals, or semantic accuracy; human editorial review remains necessary.
 
 Generation requires internet and sends extracted sources, the brief, and remembered topic information to Gemini, and may send the same material to Groq during configured failover. Parsing and planning are local, but the overall product is not completely offline. Provider access, quotas, response behavior, and costs depend on the configured account/model.
 
@@ -67,8 +67,8 @@ working metadata and token endpoints. Its success remains unverified; its route
 is covered by deterministic tests. Live availability can change at any time.
 
 Fallback may send the same evidence to Groq as well as Google. It is bounded,
-disclosed and restricted to operational/schema failures. It does not weaken local
-evidence acceptance or chase another model after a refusal. Large requests can
+disclosed and restricted to operational/schema failures. Evidence concerns remain
+local review notes and do not trigger model switching; refusals are not retried on another model. Large requests can
 fail Groq's conservative byte-based context guard even when they might fit an
 exact tokenizer count; nothing is truncated. No free-tier/billing entitlement is
 guaranteed by the app. Users manage keys, permissions, quotas and provider accounts.

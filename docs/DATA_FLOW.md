@@ -34,7 +34,7 @@ Generate and Find more topics both enter generate_batch. It checks that the work
 
 A request fingerprint includes source revision, brief/mode/target, prior topics, exclusions, requested capacity, and a deliberate round number. Ordering, day changes, downloads, and page reruns are not generation requests. An unchanged source library can support a new explicit round.
 
-The coordinator reserves busy state before provider work. A lazy chain tries Gemini 3.6 Flash, Groq GPT-OSS 120B on operational failure, then Gemini 3.8 Flash reserve. GeminiClient obtains metadata and exact request tokens; GroqClient conservatively bounds complete prompt/schema bytes against model capacity. Each reserves response capacity before sending. No route truncates evidence. All results then share local validation; zero valid output and evidence rejection do not cause another provider attempt. The API wrapper uses sanitized error categories rather than showing raw provider payloads.
+The coordinator reserves busy state before provider work. A lazy chain tries Gemini 3.6 Flash, Groq GPT-OSS 120B on operational failure, then Gemini 3.8 Flash reserve. GeminiClient obtains metadata and exact request tokens; GroqClient conservatively bounds complete prompt/schema bytes against model capacity. Each reserves response capacity before sending. No route truncates evidence. All results then share local advisory review; an empty result or evidence concern does not cause another provider attempt. The API wrapper uses sanitized error categories rather than showing raw provider payloads.
 
 At most one automatic retry is shared across metadata, token-count, and generation operations for eligible temporary errors. Long waits, permanent access/quota problems, malformed output, and timeouts are left for an informed manual retry. The transport's separate retry mechanism is disabled to avoid multiplying retries.
 
@@ -42,13 +42,13 @@ At most one automatic retry is shared across metadata, token-count, and generati
 
 The provider returns GenerationResult: a required sufficiency explanation and zero to ten TopicCandidate records. Every topic includes descriptive context, a supported core insight, audience, suggested format, and evidence references.
 
-response_validator checks source identity and filename, location membership, actual excerpt occurrence, numeric claims, some scope/unit/causal overreach, and practical distinctness against retained and excluded angles. These checks can reject obvious problems, but cannot establish complete semantic correctness. Human review remains necessary.
+response_validator checks source identity and filename, location membership, excerpt occurrence, numeric claims, some scope/unit/causal overreach, and practical distinctness against retained and excluded angles. Quote matching tolerates whitespace, common quote typography, ligatures, soft hyphens and word wrapping, and restores matching original passages. These checks produce advisory review reasons; they do not reject readable, structurally valid topics or prove semantic correctness. There is no additional extraction, validation or repair AI call.
 
-Accepted candidates become TopicIdea records with application-generated stable IDs. topic_pool also guards repetition during acceptance. No record is accepted just because a plan needs another slot.
+All returned candidates become TopicIdea records with application-generated stable IDs, including flagged and repeated angles. The response schema limits a batch to ten; extra candidates above the requested count stay in the library. No filler is created to fill slots.
 
 ## 6. Success, zero results, and failure
 
-On success, one validated commit adds accepted topics, marks sources as participated, records feedback and the successful round, and fills vacant selections for review. Weekly selections follow assigned day order. Readiness is recomputed without finalizing.
+On success, one validated commit adds topics to the review library, marks sources as participated, and records feedback and the successful round. It preserves existing plan selections; new topics require manual selection. Unselected topic cards show green source-check labels or red review reasons. Selected cards and exports omit these review labels. Readiness is recomputed without finalizing.
 
 A valid response with no new accepted topics still completes that explicit round and reports the shortfall. Another request requires another deliberate action. A provider failure or invalid response does not consume a successful round or erase prior libraries, exclusions, selections, or settings. Busy is released in all cases so retry remains possible.
 
@@ -56,11 +56,13 @@ A valid response with no new accepted topics still completes that explicit round
 
 Plan actions use stable topic IDs. Deselecting removes a selection but retains its topic. Excluding also removes it from the selection and remembers the angle. Restoring removes the excluded status without automatically selecting it. Reordering and weekday swaps do not involve the provider.
 
+Evidence concerns do not block selection, finalization, export or snapshot reopening. Reviews are recomputed locally from the retained references and current sources, so no new snapshot fields or migration are required. Deselecting a topic makes its review label visible again.
+
 The active plan can be draft, ready for review, or finalized. A fixed target must fit the selected set; switching to a smaller mode refuses to silently discard extra choices. Shorter nonempty plans require explicit shortfall acknowledgement. Finalization records a time and freezes plan editing until an explicit reopen clears finalization metadata.
 
 ## 8. Reports from the authoritative selection
 
-The exporters revalidate the workspace, require a nonempty finalized plan, and read only its selected topics. Markdown and CSV use shared ordered rows. Weekly rows retain holes and compute dates only when an optional Monday is present. Both carry supporting context, evidence, relevant extraction warnings, and metadata. The full source text is not copied unnecessarily into public planning reports.
+The exporters revalidate the workspace, require a nonempty finalized plan, and read only its selected topics. Markdown and CSV use shared ordered rows. Weekly rows retain holes and compute dates and weekday names from the chosen start date. Campaign start dates appear as plan metadata, without assigning dates to individual topics. Both carry supporting context, evidence, relevant extraction warnings, and metadata. The full source text is not copied unnecessarily into public planning reports.
 
 Reopening/editing invalidates finalization, so a current draft cannot produce a new finalized report. A previously downloaded file remains a historical artifact on the user's computer; the application cannot revoke it.
 

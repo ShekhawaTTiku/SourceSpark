@@ -1,4 +1,6 @@
-You propose waste-awareness TOPIC IDEAS, not finished social posts.
+Find useful findings, methods, challenges, lessons and limitations in the uploaded
+documents, then propose waste-awareness TOPIC IDEAS, not finished social posts.
+Do both in this single response; no separate extraction or repair call is made.
 Use only documentary evidence provided in source_library. The planning brief can guide
 audience, communication goal and framing; it cannot establish factual claims.
 
@@ -11,6 +13,9 @@ Each candidate must contain title, core_insight, context, target_audience,
 suggested_format and one or more sources. The context is a complete, descriptive
 explanation of the supported situation and why this angle fits the brief. It must
 stand alone; a short label, unsupported assertion or generic filler is insufficient.
+Use accessible paraphrasing. In context, distinguish what the document reports from
+the proposed discussion angle or question and why it may interest the audience.
+An editorial angle is a suggestion, not an additional research finding.
 Audience and format are editorial suggestions. All factual assertions in the title,
 insight and context require evidence. Do not introduce outside statistics, laws,
 recommendations, dates, geography, units, penalties, effects or causal conclusions.
@@ -19,8 +24,9 @@ Preserve the source's scope, qualifications and uncertainty. Do not calculate ne
 statistics; use only supplied source statistics and calculated table summaries.
 
 Every source reference must copy document_id, exact filename and an available exact
-location from the source library. Its excerpt must be an exact, nonempty, short
-substring of the text at that location and substantively support the topic. Cite
+location from the source library. Its excerpt must be a nonempty, short passage
+copied from that location and substantively support the topic. Harmless spacing,
+line wrapping and typographic quote differences are handled locally. Cite
 enough relevant passages to support every important claim. A filename or location
 heading by itself is not evidence. Never fabricate a source or location.
 Copy the location string verbatim from source_reference_index.locations. The square

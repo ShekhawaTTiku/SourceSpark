@@ -7,7 +7,11 @@
 
 This is the authoritative product and build specification. Earlier seven-to-ten-topic campaign rules and the original combined reference are superseded. Requirements are not claims of completed functionality. Implementation, commands, configuration contents, and actual AI prompts belong in their owning files at the relevant build step.
 
+**UI revision — 17 October 2026:** New plans now begin with Weekly or Campaign only, followed by five/seven days or a positive campaign topic count, a required start date for either mode, then a Yes checkbox that reveals optional name/audience/goal/guidance questions. Weekly plans use consecutive dates from any chosen start; campaigns retain the start as metadata. Sources, Topics and Finish are separate screens after setup. These user-requested rules supersede earlier Monday-only/undated setup and open-target creation descriptions below. Existing undated and open-target snapshots remain compatible.
+
 ## 1. Project Summary
+
+**Topic review revision — 17 October 2026:** Source and factual validation is now advisory. Keep all readable structured candidates (up to the ten-record response bound), with green source-check labels or red review reasons. Tolerate harmless quote formatting, preserve research scope, and use a single generation response without a separate extraction or repair call. New topics require manual selection; selected topics and exports omit review labels. Uncertain evidence must remain saveable and reopenable. These user-requested rules supersede strict candidate rejection and automatic selection requirements below.
 
 Help one person turn uploaded waste-related documents into distinct, evidence-backed communication topics, organized as a five/seven-topic weekly plan or a flexible campaign. Support a planning brief, user selection and ordering, readable exports, and saving/reopening work. This remains a personal learning project: the learner should understand each responsibility and data journey.
 

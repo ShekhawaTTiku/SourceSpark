@@ -14,12 +14,13 @@ def test_batches_accumulate_above_ten(workspace: Workspace) -> None:
     assert feedback == []
 
 
-def test_normalized_title_and_repeated_insight(workspace: Workspace) -> None:
-    """Catch wording/case variants across a batch and the existing library."""
+def test_repeated_insights_remain_available_for_manual_review(workspace: Workspace) -> None:
+    """Duplicate checks are advisory; the pool retains both readable candidates."""
     first = make_candidate(workspace, 1)
     variant = first.model_copy(update={'title': first.title.upper() + '!!!'})
     accepted, feedback = accept_topics([], [first, variant])
-    assert len(accepted) == 1 and len(feedback) == 1
+    assert len(accepted) == 2 and feedback == []
+    assert accepted[0].topic_id != accepted[1].topic_id
     changed_title = first.model_copy(update={'title': 'A completely new headline'})
     assert is_repeated(first, changed_title)
 

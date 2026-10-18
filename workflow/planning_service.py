@@ -70,17 +70,13 @@ def generate_batch(
     workspace.busy = True
     try:
         result = generate_topics(workspace, capacity, provider=provider)
-        accepted, feedback = accept_topics(workspace.topics, result.candidates, capacity)
+        accepted, feedback = accept_topics(workspace.topics, result.candidates, MAX_BATCH_TOPICS)
         feedback = [*result.feedback, *feedback]
         plan_payload = workspace.plan.model_dump()
         selected = list(workspace.plan.selected_topic_ids)
         assignments = dict(workspace.plan.day_assignments)
-        for topic in accepted:
-            selected.append(topic.topic_id)
-            if workspace.plan.mode == 'Week':
-                day = next(slot for slot in range(workspace.plan.weekly_days)
-                           if slot not in assignments)
-                assignments[day] = topic.topic_id
+        # Generation adds to the review library. Only an explicit user selection
+        # places a topic in the plan and dismisses its advisory review label.
         if workspace.plan.mode == 'Week':
             selected = [assignments[day] for day in sorted(assignments)]
         target = workspace.plan.effective_target
@@ -93,11 +89,11 @@ def generate_batch(
                      for item in workspace.documents]
         if not accepted:
             feedback.append(
-                'No new distinct supported topics were accepted. Add more useful sources '
+                'No new topics were returned. Add more useful sources '
                 'or deliberately try another round; additional ideas are not guaranteed.'
             )
         else:
-            feedback.insert(0, f'Added {len(accepted)} supported candidate topics for review.')
+            feedback.insert(0, f'Added {len(accepted)} candidate topics for review. Select the ones you want in your plan.')
         commit(
             workspace, topics=[*workspace.topics, *accepted], documents=documents,
             plan=Plan.model_validate(plan_payload), busy=False, request_round=round_number,

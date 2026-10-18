@@ -106,16 +106,9 @@ class Workspace(BaseModel):
             raise ValueError("Every selection and exclusion must reference a library topic.")
         if excluded & selected:
             raise ValueError("An excluded topic cannot be selected in the active plan.")
-        for topic in self.topics:
-            for evidence in topic.sources:
-                document = documents.get(evidence.document_id)
-                if document is None or evidence.filename != document.filename:
-                    raise ValueError("Topic evidence references a missing or mismatched source.")
-                text = document.locations.get(evidence.location)
-                if text is None:
-                    raise ValueError("Topic evidence references an unknown source location.")
-                if " ".join(evidence.excerpt.split()) not in " ".join(text.split()):
-                    raise ValueError("Topic evidence excerpt is absent from its source location.")
+        # Evidence concerns are advisory topic reviews, not structural errors.
+        # Keep uncertain references saveable/selectable; review_candidate checks
+        # them against the current documents whenever an unselected card is shown.
         if any(not item.strip() or len(item) > 3000 for item in self.feedback):
             raise ValueError("Feedback must be nonempty and bounded.")
         if self.modified_at < self.created_at:

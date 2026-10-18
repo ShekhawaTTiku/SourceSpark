@@ -20,7 +20,7 @@ def export_markdown(workspace: Workspace) -> str:
              f"**Selected topics:** {len(plan.selected_topic_ids)}",
              f"**Target:** {target}", f"**Finalized at:** {plan.finalized_at.isoformat()}"]
     if plan.start_date:
-        lines.append(f"**Week beginning:** {plan.start_date.isoformat()}")
+        lines.append(f"**Start date:** {plan.start_date.isoformat()}")
     if plan.shortfall_acknowledged:
         lines.append(f"**Shorter plan approved:** {plan.remaining_slots} slot(s) remain unfilled.")
     if any((plan.audience, plan.goal, plan.guidance)):

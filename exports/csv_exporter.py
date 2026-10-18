@@ -9,7 +9,7 @@ from models.workspace import Workspace
 
 CSV_COLUMNS = [
     "workspace_name", "plan_name", "plan_mode", "plan_status", "finalized_at",
-    "target", "selected_count", "unfilled_slots", "shortfall_acknowledged",
+    "start_date", "target", "selected_count", "unfilled_slots", "shortfall_acknowledged",
     "brief_audience", "brief_goal", "brief_guidance", "order", "weekday", "date",
     "slot_status", "topic_title", "topic_context", "core_insight", "target_audience",
     "suggested_format", "evidence_references", "extraction_warnings", "origin",
@@ -39,6 +39,7 @@ def export_csv(workspace: Workspace) -> bytes:
             "workspace_name": workspace.name, "plan_name": plan.name,
             "plan_mode": plan.mode, "plan_status": plan.status,
             "finalized_at": plan.finalized_at.isoformat(),
+            "start_date": plan.start_date.isoformat() if plan.start_date else "",
             "target": plan.effective_target, "selected_count": len(plan.selected_topic_ids),
             "unfilled_slots": plan.remaining_slots,
             "shortfall_acknowledged": plan.shortfall_acknowledged,

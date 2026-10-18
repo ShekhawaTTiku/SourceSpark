@@ -1,4 +1,4 @@
-"""Reject untraceable evidence, obvious factual overreach and repeated angles.
+"""Review evidence, obvious factual overreach and repeated angles locally.
 
 These conservative checks are practical safeguards, not a semantic proof. Human
 review is still necessary for relevance, factual proportionality and distinctness.
@@ -10,6 +10,7 @@ import re
 from typing import Iterable, TYPE_CHECKING
 
 from config.settings import MAX_BATCH_TOPICS
+from documents.evidence import source_passage
 from models.generation_result import GenerationResult
 from models.topic import TopicCandidate, TopicIdea
 from workflow.topic_pool import is_repeated, normalize_text
@@ -78,7 +79,9 @@ def _numbers(text: str) -> set[str]:
 
 
 def validate_evidence(candidate: TopicCandidate, documents: Iterable["DocumentRecord"]) -> str:
-    """Return a safe reason when any identity, location or excerpt is untraceable."""
+    """Return a review reason when identity, location or excerpt is untraceable."""
+    if not candidate.sources:
+        return "no supporting source references were supplied"
     documents_by_id = {document.document_id: document for document in documents}
     for reference in candidate.sources:
         document = documents_by_id.get(reference.document_id)
@@ -87,9 +90,57 @@ def validate_evidence(candidate: TopicCandidate, documents: Iterable["DocumentRe
         location_text = document.locations.get(reference.location)
         if location_text is None:
             return "an evidence reference uses a location absent from its source"
-        if not reference.excerpt.strip() or reference.excerpt not in location_text:
+        if source_passage(reference.excerpt, location_text) is None:
             return "an evidence excerpt is not present at its cited source location"
     return ""
+
+
+def review_candidate(
+    candidate: TopicCandidate, documents: Iterable["DocumentRecord"],
+    existing_topics: Iterable[TopicCandidate] = (), excluded_ids: Iterable[str] = (),
+) -> list[str]:
+    """Advisory checks only; a green result is not a proof of factual accuracy."""
+    issues = []
+    evidence_problem = validate_evidence(candidate, documents)
+    if evidence_problem:
+        issues.append(evidence_problem)
+    claim_problem = _unsupported_claim(candidate)
+    if claim_problem:
+        issues.append(claim_problem)
+    excluded = set(excluded_ids)
+    duplicate = None
+    for topic in existing_topics:
+        if isinstance(candidate, TopicIdea) and candidate.topic_id == getattr(topic, "topic_id", None):
+            continue
+        if is_repeated(candidate, topic):
+            duplicate = topic
+            break
+    if duplicate is not None:
+        reason = "a previously excluded angle" if (
+            getattr(duplicate, "topic_id", None) in excluded
+        ) else "an existing or same-batch angle"
+        issues.append(f"it repeats {reason}")
+    return issues
+
+
+def _restore_source_passages(candidate: TopicCandidate, documents: list["DocumentRecord"]) -> TopicCandidate:
+    """Store original excerpts for matches; leave uncertain references for review."""
+    restored = candidate.model_copy(deep=True)
+    by_id = {document.document_id: document for document in documents}
+    for reference in restored.sources:
+        document = by_id.get(reference.document_id)
+        if document is None or document.filename != reference.filename:
+            continue
+        text = document.locations.get(reference.location)
+        if text is not None:
+            passage = source_passage(reference.excerpt, text)
+            if passage is not None and len(passage) <= 3000:
+                reference.excerpt = passage
+    unique = {}
+    for reference in restored.sources:
+        unique[(reference.document_id, reference.location, reference.excerpt)] = reference
+    restored.sources = list(unique.values())
+    return restored
 
 
 def _unsupported_claim(candidate: TopicCandidate) -> str:
@@ -138,7 +189,7 @@ def validate_candidates(
     excluded_ids: Iterable[str],
     capacity: int,
 ) -> ValidatedBatch:
-    """Validate a batch without changing documents, topics, or plan selections."""
+    """Keep bounded readable candidates, attaching advisory feedback without mutation."""
     if isinstance(capacity, bool) or not 1 <= capacity <= MAX_BATCH_TOPICS:
         raise ValueError("The requested generation capacity must be between one and ten.")
     result = GenerationResult.model_validate(result)
@@ -148,31 +199,20 @@ def validate_candidates(
     excluded = set(excluded_ids)
     for index, candidate in enumerate(result.candidates, start=1):
         label = f"Candidate {index}"
-        problem = validate_evidence(candidate, source_records) or _unsupported_claim(candidate)
-        if problem:
-            batch.feedback.append(f"{label} rejected: {problem}.")
-            continue
-        duplicate = next((topic for topic in previous if is_repeated(candidate, topic)), None)
-        if duplicate is not None:
-            reason = "a previously excluded angle" if (
-                getattr(duplicate, "topic_id", None) in excluded
-            ) else "an existing or same-batch angle"
-            batch.feedback.append(f"{label} rejected: it repeats {reason}.")
-            continue
-        if len(batch.candidates) >= capacity:
-            batch.feedback.append(f"{label} rejected: the requested batch capacity is already filled.")
-            continue
-        batch.candidates.append(candidate.model_copy(deep=True))
+        issues = review_candidate(candidate, source_records, previous, excluded)
+        if issues:
+            batch.feedback.append(f"{label} kept for review: {'; '.join(issues)}.")
+        batch.candidates.append(_restore_source_passages(candidate, source_records))
         previous.append(candidate)
     if batch.candidates:
         batch.feedback.append(
-            "Evidence references passed local checks. Review relevance, claim scope and "
-            "distinctness before finalizing; these checks cannot prove correct reasoning."
+            "Topics are available for manual selection. Green means source checks passed; "
+            "red means needs review. Local checks cannot prove correct reasoning."
         )
-    elif result.candidates:
-        batch.feedback.append("No returned candidate passed validation; earlier work was preserved.")
+        if len(batch.candidates) > capacity:
+            batch.feedback.append("The provider returned extra topics; all were kept in the review library.")
     else:
-        batch.feedback.append("The provider returned no new supported topics; earlier work was preserved.")
+        batch.feedback.append("The provider returned no new topics; earlier work was preserved.")
     if len(batch.candidates) < capacity:
         batch.feedback.append(
             f"Accepted {len(batch.candidates)} of up to {capacity} requested topics; "

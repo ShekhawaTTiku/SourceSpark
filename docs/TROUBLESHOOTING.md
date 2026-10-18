@@ -40,15 +40,16 @@ This guide describes implemented checks; [PROGRESS.md](PROGRESS.md) records what
 | Temporary provider failure. | At most one eligible automatic retry is shared across operations. If it still fails, review connection/provider status and retry explicitly. Do not re-upload working sources merely because generation failed. |
 | Incomplete/invalid structured response. | Try a smaller batch or check model/schema compatibility. Invalid output is not accepted as usable topics. Raw responses stay out of user diagnostics. |
 | Complete context exceeds a limit. | Nothing was silently dropped. Save the workspace and use a smaller separate workspace. Provider token limits and local character guards are different checks. |
-| Fewer topics than requested. | The sources may not support enough distinct valid ideas. Read the sufficiency note and rejection feedback; add useful sources or finalize a nonempty shorter plan deliberately. |
+| Fewer topics than requested. | The provider may return fewer ideas. Read its sufficiency note; add useful sources or finalize a nonempty shorter plan deliberately. Evidence concerns flag topics for review instead of rejecting them. |
 | Find more topics returns zero. | Another request cannot guarantee another angle. Earlier topics remain. Check exclusions and evidence, then deliberately choose whether new sources would help. |
-| A candidate is rejected despite a real quotation. | Real excerpts are necessary but may not support the stated number, scope, causal effect, unit, or insight. Review the proposed claim rather than weakening the evidence requirement. |
+| A topic is red / needs review. | Check the reason and cited passage, then select it or exclude the angle. Formatting-only quote differences are tolerated. Selection hides the review label, including in exports; it does not verify the research. |
+| Topics were generated but the plan is empty. | New topics enter the Available library. Use Select for plan to choose the ones you want. Generation no longer selects them automatically. |
 
 ## Planning and session behavior
 
 Changing names, brief fields, selections, day assignments, or order should never call Gemini. If network generation occurs during those actions, treat it as a regression in the UI-to-coordinator boundary and add a focused interaction test.
 
-A smaller target or mode cannot silently discard selected topics. Deselect the unwanted choices first; they remain in the library. Campaigns have no weekly date assignment. Optional weekly start dates must be Mondays, with the entire week inside the supported calendar. An extreme date that would push a later day beyond the calendar is rejected before it can break an export.
+A smaller target or mode cannot silently discard selected topics. Deselect the unwanted choices first; they remain in the library. Campaigns store a plan start date but have no weekly day assignments. Weekly plans can start on any date, with the entire week inside the supported calendar. An extreme date that would push a later day beyond the calendar is rejected before it can break an export.
 
 Reaching a target does not finalize. Explicitly review and finalize. For an incomplete nonempty fixed plan, acknowledge the shortfall. For an empty plan, select supported topics first. To edit an approved plan, reopen it or start a new plan.
 
@@ -84,8 +85,8 @@ provider recovery before another explicit request.
 
 Structured wire schemas differ by provider. Gemini receives its supported inlined
 subset; Groq receives a strict structural JSON schema. Local length, field,
-evidence and duplicate validation is still mandatory. The Groq client uses an
+validation remains mandatory; evidence and duplicate checks provide advisory review notes. The Groq client uses an
 application User-Agent because the default Python identifier was rejected in
-live testing. A location mismatch is a validation failure, not permission to
-invent a citation or switch models until one accepts it. Request assembly includes
+live testing. A location mismatch flags the topic for manual review and does not
+trigger a repair call or another model. Request assembly includes
 a structured index of exact available source-location labels to reduce such errors.

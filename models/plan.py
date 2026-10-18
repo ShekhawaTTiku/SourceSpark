@@ -57,15 +57,13 @@ class Plan(BaseModel):
             ordered = [self.day_assignments[day] for day in sorted(self.day_assignments)]
             if ordered != selected:
                 raise ValueError("Weekly selections must match assignments in day order.")
-            if self.start_date is not None and self.start_date.weekday() != 0:
-                raise ValueError("The optional week-start date must be a Monday.")
             if self.start_date is not None:
                 try:
                     self.start_date + timedelta(days=self.weekly_days - 1)
                 except OverflowError:
                     raise ValueError("The entire week must fit within the supported calendar.") from None
-        elif self.day_assignments or self.start_date is not None:
-            raise ValueError("Campaigns do not use weekly assignments or a start date.")
+        elif self.day_assignments:
+            raise ValueError("Campaigns do not use weekly assignments.")
         if self.effective_target is not None and len(selected) > self.effective_target:
             raise ValueError("Selections exceed the active plan target.")
         ready = bool(selected) and (
