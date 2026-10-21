@@ -287,6 +287,13 @@ class GeminiClient:
                 return GenerationResult.model_validate(parsed)
             text = getattr(response, "text", None)
             if not text:
+                # Empty body can occur when the provider is under load. One retry is
+                # allowed if the shared budget has not already been spent on a network
+                # error above. A second empty response hands off to the fallback chain.
+                if self._retries_remaining:
+                    self._retries_remaining -= 1
+                    self._sleep(1.0)
+                    return self._generate(prompt, capacity)
                 raise GenerationError(
                     "invalid_output", "Gemini returned no structured response. You can retry.", retryable=True
                 )

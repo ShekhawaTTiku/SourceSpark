@@ -393,7 +393,6 @@ def test_timeout_is_distinct_and_requires_manual_retry():
 @pytest.mark.parametrize("response", [
     SimpleNamespace(parsed=None, text="not JSON", candidates=[]),
     SimpleNamespace(parsed={"wrong": "shape"}, candidates=[]),
-    SimpleNamespace(parsed=None, text=None, candidates=[]),
     SimpleNamespace(parsed=None, candidates=[SimpleNamespace(finish_reason="MAX_TOKENS")]),
 ])
 def test_invalid_or_incomplete_model_outputs_are_distinct(response):
@@ -402,6 +401,17 @@ def test_invalid_or_incomplete_model_outputs_are_distinct(response):
         client.generate("complete prompt", 5)
     assert caught.value.category == "invalid_output"
     assert sleeps == []
+
+
+def test_empty_response_retries_once_then_raises_invalid_output():
+    # An empty body (text=None, parsed=None) is a transient load-spike pattern; the
+    # shared retry budget allows exactly one automatic re-attempt before giving up.
+    empty = SimpleNamespace(parsed=None, text=None, candidates=[])
+    client, sleeps = gemini(FakeModels(response=empty))
+    with pytest.raises(GenerationError) as caught:
+        client.generate("complete prompt", 5)
+    assert caught.value.category == "invalid_output"
+    assert sleeps == [1.0]  # One 1-second pause before the retry attempt
 
 
 def test_configuration_is_required_without_network_calls():
