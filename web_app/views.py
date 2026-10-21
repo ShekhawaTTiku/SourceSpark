@@ -712,7 +712,7 @@ def render_generation(workspace: Workspace) -> None:
     )
     if not configured:
         st.info(
-            'Add GEMINI_API_KEY and GROQ_API_KEY to your local .env to enable both providers. '
+            'Add GEMINI_API_KEY and GROQ_API_KEY to your local .env or Streamlit Secrets to enable providers. '
             'Generation can use either configured provider. Restart after configuration changes.'
         )
     selected = len(workspace.plan.selected_topic_ids)

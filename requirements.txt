@@ -1,2 +1,12 @@
-# Convenience entry point; the maintained dependency list lives in streamlit_setup.
--r streamlit_setup/requirements.txt
+# Production dependencies for Streamlit Community Cloud
+streamlit
+google-genai
+pydantic
+pymupdf
+python-docx
+pandas
+openpyxl
+tabulate
+python-dotenv
+streamlit-shadcn-ui
+streamlit-antd-components

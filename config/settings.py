@@ -25,12 +25,25 @@ MAX_SAVED_TOPICS = 10_000
 MAX_ARCHIVE_UNCOMPRESSED_BYTES = 100 * 1024 * 1024
 MAX_TABLE_CELLS = 1_000_000
 
+def _get_setting(key: str, default: str = "") -> str:
+    val = os.getenv(key)
+    if val:
+        return val.strip()
+    try:
+        import streamlit as st
+        if hasattr(st, "secrets") and key in st.secrets:
+            return str(st.secrets[key]).strip()
+    except Exception:
+        pass
+    return default
+
+
 # Provider credentials stay local; their models are tried only on explicit generation actions.
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.6-flash").strip()
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
-GEMINI_FALLBACK_MODEL = os.getenv("GEMINI_FALLBACK_MODEL", "gemini-3.8-flash").strip()
-GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b").strip()
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()
+GEMINI_MODEL = _get_setting("GEMINI_MODEL", "gemini-3.6-flash")
+GEMINI_API_KEY = _get_setting("GEMINI_API_KEY", "")
+GEMINI_FALLBACK_MODEL = _get_setting("GEMINI_FALLBACK_MODEL", "gemini-3.8-flash")
+GROQ_MODEL = _get_setting("GROQ_MODEL", "openai/gpt-oss-120b")
+GROQ_API_KEY = _get_setting("GROQ_API_KEY", "")
 
 # Groq's documented GPT-OSS 120B context/output limits; no truncation is permitted.
 GROQ_CONTEXT_TOKENS = 131_072
