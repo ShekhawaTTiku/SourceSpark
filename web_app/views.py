@@ -81,8 +81,8 @@ def render_header(workspace: Workspace) -> None:
 /* Global Font & Canvas */
 html, body, [class*="css"], .stApp {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-  background-color: #F8FAFC !important;
-  color: #0F172A !important;
+  background-color: #FAF8F5 !important;
+  color: #1C1917 !important;
 }
 
 /* Constrain content width comfortably */
@@ -98,7 +98,7 @@ html, body, [class*="css"], .stApp {
 h1, h2, h3, h4, [data-testid="stHeadingWithActionElements"] {
   font-family: 'Plus Jakarta Sans', sans-serif !important;
   letter-spacing: -0.025em !important;
-  color: #0F172A !important;
+  color: #1C1917 !important;
 }
 
 h1 {
@@ -126,16 +126,16 @@ h1 {
 
 /* Modern Card Containers */
 div[data-testid="stVerticalBlockBorderWrapper"] {
-  border: 1px solid #E2E8F0 !important;
+  border: 1px solid #E7E2DA !important;
   border-radius: 12px !important;
   background-color: #FFFFFF !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+  box-shadow: 0 1px 3px rgba(44, 34, 24, 0.04), 0 1px 2px rgba(44, 34, 24, 0.02) !important;
   padding: 1.15rem !important;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 div[data-testid="stVerticalBlockBorderWrapper"]:hover {
-  border-color: #CBD5E1 !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+  border-color: #D6CEC3 !important;
+  box-shadow: 0 4px 12px rgba(44, 34, 24, 0.06) !important;
 }
 
 /* Complete Visual Overhaul for All Buttons */
@@ -194,27 +194,27 @@ div.stButton > button[kind="secondary"],
 div.stButton > button:not([kind="primary"]):not([data-testid*="primary"]):not([data-testid*="Primary"]),
 div[data-testid="stDownloadButton"] button {
   background: #FFFFFF !important;
-  border: 1px solid #D1D5DB !important;
-  color: #1F2937 !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid #D8D2C7 !important;
+  color: #292524 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
 }
 button[data-testid*="secondary"]:hover,
 button[kind="secondary"]:hover,
 div.stButton > button:not([kind="primary"]):not([data-testid*="primary"]):not([data-testid*="Primary"]):hover,
 div[data-testid="stDownloadButton"] button:hover {
-  background: #F9FAFB !important;
-  border-color: #9CA3AF !important;
-  color: #0F172A !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+  background: #F5F1EB !important;
+  border-color: #B8ADA0 !important;
+  color: #1C1917 !important;
+  box-shadow: 0 2px 4px rgba(44, 34, 24, 0.08) !important;
   transform: translateY(-1px) !important;
 }
 
 /* Segmented Control / Navigation Pills */
 div[data-testid="stSegmentedControl"] {
-  background: #F1F5F9 !important;
+  background: #F2ECE4 !important;
   padding: 4px !important;
   border-radius: 10px !important;
-  border: 1px solid #E2E8F0 !important;
+  border: 1px solid #E7E2DA !important;
 }
 div[data-testid="stSegmentedControl"] button {
   font-family: 'Plus Jakarta Sans', sans-serif !important;
@@ -229,7 +229,7 @@ div[data-baseweb="input"] > div,
 div[data-testid="stTextInput"] input,
 div[data-testid="stTextArea"] textarea {
   border-radius: 8px !important;
-  border: 1px solid #D1D5DB !important;
+  border: 1px solid #D8D2C7 !important;
   font-family: 'Plus Jakarta Sans', sans-serif !important;
   font-size: 13.5px !important;
 }
@@ -243,30 +243,30 @@ div[data-testid="stTextArea"] textarea:focus {
 /* Evidence quote boxes */
 .sp-evidence-box {
   border-left: 3px solid #166534;
-  background-color: #F8FAFC;
+  background-color: #FAF8F5;
   padding: 10px 14px;
   border-radius: 0 8px 8px 0;
   margin: 6px 0 10px 0;
   font-size: 12.5px;
   line-height: 1.6;
-  color: #1E293B;
-  border-top: 1px solid #E2E8F0;
-  border-right: 1px solid #E2E8F0;
-  border-bottom: 1px solid #E2E8F0;
+  color: #292524;
+  border-top: 1px solid #E7E2DA;
+  border-right: 1px solid #E7E2DA;
+  border-bottom: 1px solid #E7E2DA;
 }
 
 /* Scrollable Monospace Box */
 .sp-scroll-text {
   max-height: 380px;
   overflow-y: auto;
-  background: #F8FAFC;
+  background: #FAF8F5;
   padding: 12px 14px;
-  border: 1px solid #E2E8F0;
+  border: 1px solid #E7E2DA;
   border-radius: 8px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
   line-height: 1.6;
-  color: #0F172A;
+  color: #1C1917;
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -279,9 +279,9 @@ div[data-testid="stTextArea"] textarea:focus {
   font-weight: 600;
   padding: 3px 9px;
   border-radius: 6px;
-  background-color: #F1F5F9;
-  color: #475569;
-  border: 1px solid #E2E8F0;
+  background-color: #F2ECE4;
+  color: #574F46;
+  border: 1px solid #E7E2DA;
   margin-right: 6px;
   margin-bottom: 4px;
 }
